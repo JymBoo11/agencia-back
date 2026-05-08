@@ -1,0 +1,160 @@
+services:
+  # --- BASES DE DATOS ---
+  postgres-users:
+    image: postgres:15
+    container_name: postgres-users
+    environment:
+      POSTGRES_DB: viajes_users
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: postgres
+    ports:
+      - "5432:5432"
+    volumes:
+      - postgres-users-data:/var/lib/postgresql/data
+
+  postgres-trips:
+    image: postgres:15
+    container_name: postgres-trips
+    environment:
+      POSTGRES_DB: viajes_trips
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: postgres
+    ports:
+      - "5433:5432"
+    volumes:
+      - postgres-trips-data:/var/lib/postgresql/data
+
+  postgres-payments:
+    image: postgres:15
+    container_name: postgres-payments
+    environment:
+      POSTGRES_DB: viajes_payments
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: postgres
+    ports:
+      - "5434:5432"
+    volumes:
+      - postgres-payments-data:/var/lib/postgresql/data
+
+  postgres-bookings:
+    image: postgres:15
+    container_name: postgres-bookings
+    environment:
+      POSTGRES_DB: viajes_bookings
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: postgres
+    ports:
+      - "5435:5432"
+    volumes:
+      - postgres-bookings-data:/var/lib/postgresql/data
+
+  mongodb:
+    image: mongo:6
+    container_name: mongodb
+    ports:
+      - "27017:27017"
+    volumes:
+      - mongodb-data:/data/db
+
+  # --- MICROSERVICIOS (Ejecución directa de JARs) ---
+  api-gateway:
+    image: eclipse-temurin:17-jre-alpine
+    container_name: api-gateway
+    volumes:
+      - ./viajes-ia-backend/api-gateway/target/api-gateway-1.0.0.jar:/app/app.jar
+    ports:
+      - "8080:8080"
+    command: java -jar /app/app.jar
+    depends_on:
+      - user-service
+
+  user-service:
+    image: eclipse-temurin:17-jre-alpine
+    container_name: user-service
+    volumes:
+      - ./viajes-ia-backend/user-service/target/user-service-1.0.0.jar:/app/app.jar
+    ports:
+      - "8081:8081"
+    environment:
+      SPRING_DATASOURCE_URL: jdbc:postgresql://postgres-users:5432/viajes_users
+      SPRING_DATASOURCE_USERNAME: postgres
+      SPRING_DATASOURCE_PASSWORD: postgres
+    command: java -jar /app/app.jar
+    depends_on:
+      - postgres-users
+
+  ai-service:
+    image: eclipse-temurin:17-jre-alpine
+    container_name: ai-service
+    volumes:
+      - ./viajes-ia-backend/ai-service/target/ai-service-1.0.0.jar:/app/app.jar
+    ports:
+      - "8083:8083"
+    environment:
+      SPRING_DATA_MONGODB_HOST: mongodb
+      SPRING_DATA_MONGODB_PORT: 27017
+      SPRING_DATA_MONGODB_DATABASE: viajes_ai
+    command: java -jar /app/app.jar
+    depends_on:
+      - mongodb
+
+  trip-service:
+    image: eclipse-temurin:17-jre-alpine
+    container_name: trip-service
+    volumes:
+      - ./viajes-ia-backend/trip-service/target/trip-service-1.0.0.jar:/app/app.jar
+    ports:
+      - "8082:8082"
+    environment:
+      SPRING_DATASOURCE_URL: jdbc:postgresql://postgres-trips:5432/viajes_trips
+      SPRING_DATASOURCE_USERNAME: postgres
+      SPRING_DATASOURCE_PASSWORD: postgres
+    command: java -jar /app/app.jar
+    depends_on:
+      - postgres-trips
+
+  payment-service:
+    image: eclipse-temurin:17-jre-alpine
+    container_name: payment-service
+    volumes:
+      - ./viajes-ia-backend/payment-service/target/payment-service-1.0.0.jar:/app/app.jar
+    ports:
+      - "8084:8084"
+    environment:
+      SPRING_DATASOURCE_URL: jdbc:postgresql://postgres-payments:5432/viajes_payments
+      SPRING_DATASOURCE_USERNAME: postgres
+      SPRING_DATASOURCE_PASSWORD: postgres
+    command: java -jar /app/app.jar
+    depends_on:
+      - postgres-payments
+
+  booking-service:
+    image: eclipse-temurin:17-jre-alpine
+    container_name: booking-service
+    volumes:
+      - ./viajes-ia-backend/booking-service/target/booking-service-1.0.0.jar:/app/app.jar
+    ports:
+      - "8085:8085"
+    environment:
+      SPRING_DATASOURCE_URL: jdbc:postgresql://postgres-bookings:5432/viajes_bookings
+      SPRING_DATASOURCE_USERNAME: postgres
+      SPRING_DATASOURCE_PASSWORD: postgres
+    command: java -jar /app/app.jar
+    depends_on:
+      - postgres-bookings
+
+  # --- FRONTEND ---
+  frontend:
+    build: ./viajes-ia-frontend
+    container_name: frontend
+    ports:
+      - "3009:3000"
+    depends_on:
+      - api-gateway
+
+volumes:
+  postgres-users-data:
+  postgres-trips-data:
+  postgres-payments-data:
+  postgres-bookings-data:
+  mongodb-data:

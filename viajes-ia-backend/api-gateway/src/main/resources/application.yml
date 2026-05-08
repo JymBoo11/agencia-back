@@ -1,0 +1,41 @@
+server:
+  port: 8080
+
+spring:
+  application:
+    name: api-gateway
+  cloud:
+    gateway:
+      routes:
+        - id: user-service
+          uri: http://localhost:8081
+          predicates:
+            - Path=/api/auth/**,/api/users/**
+          filters:
+            - StripPrefix=0
+        - id: ai-service
+          uri: http://localhost:8083
+          predicates:
+            - Path=/api/ai/**
+        - id: trip-service
+          uri: http://localhost:8082
+          predicates:
+            - Path=/api/trips/**
+        - id: payment-service
+          uri: http://localhost:8084
+          predicates:
+            - Path=/api/payments/**
+        - id: booking-service
+          uri: http://localhost:8085
+          predicates:
+            - Path=/api/bookings/**
+      default-filters:
+        - AddResponseHeader=X-Response-Time,1s
+
+jwt:
+  secret: mySuperSecretKeyForJWTGeneration2026
+  expiration: 86400000
+
+logging:
+  level:
+    org.springframework.cloud.gateway: DEBUG
