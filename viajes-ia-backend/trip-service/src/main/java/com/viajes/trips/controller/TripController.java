@@ -3,7 +3,6 @@ package com.viajes.trips.controller;
 import com.viajes.trips.dto.CreateTripRequest;
 import com.viajes.trips.model.Trip;
 import com.viajes.trips.service.TripService;
-import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
@@ -13,10 +12,13 @@ import java.util.List;
 
 @RestController
 @RequestMapping("/api/trips")
-@RequiredArgsConstructor
 public class TripController {
 
     private final TripService tripService;
+
+    public TripController(TripService tripService) {
+        this.tripService = tripService;
+    }
 
     @PostMapping
     public ResponseEntity<Trip> createTrip(@RequestBody CreateTripRequest request,

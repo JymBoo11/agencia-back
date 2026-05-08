@@ -4,7 +4,7 @@ import com.viajes.users.dto.AuthRequest;
 import com.viajes.users.dto.AuthResponse;
 import com.viajes.users.model.User;
 import com.viajes.users.repository.UserRepository;
-import lombok.RequiredArgsConstructor;
+import com.viajes.users.service.JwtService;
 
 import java.util.Collections;
 
@@ -15,13 +15,20 @@ import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
 @Service
-@RequiredArgsConstructor
 public class UserService {
 
     private final UserRepository userRepository;
     private final PasswordEncoder passwordEncoder;
     private final JwtService jwtService;
     private final AuthenticationManager authenticationManager;
+
+    public UserService(UserRepository userRepository, PasswordEncoder passwordEncoder, 
+                       JwtService jwtService, AuthenticationManager authenticationManager) {
+        this.userRepository = userRepository;
+        this.passwordEncoder = passwordEncoder;
+        this.jwtService = jwtService;
+        this.authenticationManager = authenticationManager;
+    }
 
     public AuthResponse register(AuthRequest request) {
         if (userRepository.existsByEmail(request.email())) {
