@@ -3,16 +3,18 @@ package com.viajes.booking.service;
 import com.viajes.booking.model.Booking;
 import com.viajes.booking.repository.BookingRepository;
 import com.viajes.booking.dto.BookingRequest;
-import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
 
 @Service
-@RequiredArgsConstructor
 public class BookingService {
 
     private final BookingRepository bookingRepository;
+
+    public BookingService(BookingRepository bookingRepository) {
+        this.bookingRepository = bookingRepository;
+    }
 
     public List<Booking> getBookingsByTripId(Long tripId) {
         return bookingRepository.findByTripId(tripId);

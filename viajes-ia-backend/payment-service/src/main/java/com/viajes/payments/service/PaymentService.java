@@ -3,7 +3,6 @@ package com.viajes.payments.service;
 import com.viajes.payments.model.Payment;
 import com.viajes.payments.repository.PaymentRepository;
 import com.stripe.exception.StripeException;
-import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -11,11 +10,15 @@ import java.math.BigDecimal;
 import java.util.List;
 
 @Service
-@RequiredArgsConstructor
 public class PaymentService {
 
     private final PaymentRepository paymentRepository;
     private final StripeService stripeService;
+
+    public PaymentService(PaymentRepository paymentRepository, StripeService stripeService) {
+        this.paymentRepository = paymentRepository;
+        this.stripeService = stripeService;
+    }
 
     public Payment createPayment(Long tripId, Long userId, BigDecimal amount) {
         Payment payment = new Payment();

@@ -4,18 +4,21 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import com.viajes.trips.model.Trip;
 import com.viajes.trips.repository.TripRepository;
 import com.viajes.trips.dto.CreateTripRequest;
-import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 
 import java.math.BigDecimal;
 import java.util.List;
 
 @Service
-@RequiredArgsConstructor
 public class TripService {
 
     private final TripRepository tripRepository;
-    private final ObjectMapper objectMapper = new ObjectMapper();
+    private final ObjectMapper objectMapper;
+
+    public TripService(TripRepository tripRepository) {
+        this.tripRepository = tripRepository;
+        this.objectMapper = new ObjectMapper();
+    }
 
     public Trip createTripFromRecommendation(Long userId, CreateTripRequest request) {
         Trip trip = new Trip();

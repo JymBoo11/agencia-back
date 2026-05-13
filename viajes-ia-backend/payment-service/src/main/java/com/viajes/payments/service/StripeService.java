@@ -4,18 +4,12 @@ import com.stripe.Stripe;
 import com.stripe.exception.StripeException;
 import com.stripe.model.PaymentIntent;
 import com.stripe.param.PaymentIntentCreateParams;
-import com.viajes.payments.model.Payment;
-import com.viajes.payments.repository.PaymentRepository;
-import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 
 import java.math.BigDecimal;
-import java.util.HashMap;
-import java.util.Map;
 
 @Service
-@RequiredArgsConstructor
 public class StripeService {
 
     @Value("${stripe.api.key:sk_test_placeholder}")
